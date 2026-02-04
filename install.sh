@@ -18,7 +18,7 @@ else
 fi
 
 INSTALL_DIR="/usr/local/LRhub"
-VERSION=1.3
+VERSION=1.3.1
 
 echo -e "\nCloning LRhub into $INSTALL_DIR..."
 
@@ -44,5 +44,9 @@ echo -e "Cleaning up...\n"
 sudo mv $INSTALL_DIR/LRhub-v$VERSION/tools $INSTALL_DIR
 sudo mv $INSTALL_DIR/LRhub-v$VERSION/hub.lua $INSTALL_DIR
 sudo rm -r $INSTALL_DIR/LRhub-v$VERSION
+sudo rm -r $INSTALL_DIR/prev
+sudo rm -r $INSTALL_DIR/.git
+sudo rm $INSTALL_DIR/README.md
+sudo rm $INSTALL_DIR/install.sh
 
 echo -e "Run with:\n\e[33mlrhub\e[0m"
