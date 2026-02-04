@@ -27,7 +27,7 @@ if [ -d "$INSTALL_DIR" ]; then
     rm -rf "$INSTALL_DIR"
 fi
 
-git clone https://github.com/kaladoodotlua/LRhub.git "$INSTALL_DIR"
+sudo git clone https://github.com/kaladoodotlua/LRhub.git "$INSTALL_DIR"
 
 echo -e "\nCreating run script..."
 
@@ -37,12 +37,12 @@ cd "$INSTALL_DIR" || exit 1
 lua hub.lua "\$@"
 EOF
 
-chmod +x "/usr/bin/lrhub"
+sudo chmod +x "/usr/bin/lrhub"
 
 echo -e "\n\e[32mLRhub installed successfully!\e[0m"
 echo -e "Cleaning up...\n"
-mv $INSTALL_DIR/LRhub-v$VERSION/tools $INSTALL_DIR
-mv $INSTALL_DIR/LRhub-v$VERSION/hub.lua $INSTALL_DIR
-rm -r $INSTALL_DIR/LRhub-v$VERSION
+sudo mv $INSTALL_DIR/LRhub-v$VERSION/tools $INSTALL_DIR
+sudo mv $INSTALL_DIR/LRhub-v$VERSION/hub.lua $INSTALL_DIR
+sudo rm -r $INSTALL_DIR/LRhub-v$VERSION
 
 echo -e "Run with:\n\e[33mlrhub\e[0m"
