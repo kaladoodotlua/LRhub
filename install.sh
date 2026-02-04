@@ -24,7 +24,7 @@ echo -e "\nCloning LRhub into $INSTALL_DIR..."
 
 if [ -d "$INSTALL_DIR" ]; then
     echo -e "\e[33mExisting LRhub directory found. Removing...\e[0m"
-    rm -rf "$INSTALL_DIR"
+    sudo rm -rf "$INSTALL_DIR"
 fi
 
 sudo git clone https://github.com/kaladoodotlua/LRhub.git "$INSTALL_DIR"
