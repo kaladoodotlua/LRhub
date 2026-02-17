@@ -1,6 +1,6 @@
 os.execute("stty -echo -icanon")
 os.execute("clear")
-local version = "v1.3"
+local version = "v1.3.1"
 print("\27[1mLRhub\27[0m\n\27[3m" .. version .. "\27[0m\n\nLoading...")
 --[[
 disable - os.execute("stty -echo -icanon")
@@ -22,16 +22,17 @@ local ltn12 = require("ltn12")
 local qrencode = dofile("tools/qrencode.lua")
 
 local logo = [[
-       ,gggg,  ,ggggggggggg,                                      
-      d8" "8I dP"""88""""""Y8,  ,dPYb,                 ,dPYb,     
-      88  ,dP Yb,  88      `8b  IP'`Yb                 IP'`Yb     
-   8888888P"   `"  88      ,8P  I8  8I                 I8  8I     
-      88           88aaaad8P"   I8  8'                 I8  8'     
-      88           88""""Yb,    I8 dPgg,   gg      gg  I8 dP      
- ,aa,_88           88     "8b   I8dP" "8I  I8      8I  I8dP   88gg
-dP" "88P           88      `8i  I8P    I8  I8,    ,8I  I8P    8I  
-Yb,_,d88b,,_       88       Yb,,d8     I8,,d8b,  ,d8b,,d8b,  ,8I  
- "Y8P"  "Y88888    88        Y888P     `Y88P'"Y88P"`Y88P'"Y88P"'  
+
+        ,gggg,  ,ggggggggggg,                                      
+       d8" "8I dP"""88""""""Y8,  ,dPYb,                 ,dPYb,     
+       88  ,dP Yb,  88      `8b  IP'`Yb                 IP'`Yb     
+    8888888P"   `"  88      ,8P  I8  8I                 I8  8I     
+       88           88aaaad8P"   I8  8'                 I8  8'     
+       88           88""""Yb,    I8 dPgg,   gg      gg  I8 dP      
+  ,aa,_88           88     "8b   I8dP" "8I  I8      8I  I8dP   88gg
+ dP" "88P           88      `8i  I8P    I8  I8,    ,8I  I8P    8I  
+ Yb,_,d88b,,_       88       Yb,,d8     I8,,d8b,  ,d8b,,d8b,  ,8I  
+  "Y8P"  "Y88888    88        Y888P     `Y88P'"Y88P"`Y88P'"Y88P"'  
 ]]
 
 local hostname = io.popen("hostname"):read("*a"):gsub("\n","")
