@@ -37,7 +37,7 @@ cd "$INSTALL_DIR" || exit 1
 lua hub.lua "\$@"
 EOF
 
-sudo chmod +x "/usr/bin/lrhub"
+sudo chmod +x "/usr/local/bin/lrhub"
 
 echo -e "\n\e[32mLRhub installed successfully!\e[0m"
 echo -e "Cleaning up...\n"
