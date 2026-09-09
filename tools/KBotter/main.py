@@ -28,18 +28,16 @@ def lrhub_dir():
         return d
     return os.path.join(os.path.expanduser("~"), "Documents", "LRhub")
 
-LH = lrhub_dir()
+LH = os.path.join(lrhub_dir(), "kbotter")
 os.makedirs(LH, exist_ok=True)
 
 CONFIG = os.path.join(LH, "config.json")
 
 DEFAULTS = {
-    "kbotter": {
-        "game_pin": "",
-        "player_name": "",
-        "player_amount": "10",
-        "name_bypass": False
-    }
+    "game_pin": "",
+    "player_name": "",
+    "player_amount": "10",
+    "name_bypass": False
 }
 
 def load_config():
@@ -144,34 +142,33 @@ def main():
 
     try:
         cfg = load_config()
-        kb = cfg.setdefault("kbotter", {})
-        for key, value in DEFAULTS["kbotter"].items():
-            kb.setdefault(key, value)
+        for key, value in DEFAULTS.items():
+            cfg.setdefault(key, value)
 
         print(SEP)
-        gamePin = input(f"{INFO} Enter Game Pin [{kb['game_pin']}]: ").strip() or kb['game_pin']
+        gamePin = input(f"{INFO} Enter Game Pin [{cfg['game_pin']}]: ").strip() or cfg['game_pin']
         clear()
 
-        playerName = input(f"{INFO} Enter Player Name (Note: will add number incrementally after the name) [{kb['player_name']}]: ").strip() or kb['player_name']
+        playerName = input(f"{INFO} Enter Player Name (Note: will add number incrementally after the name) [{cfg['player_name']}]: ").strip() or cfg['player_name']
         clear()
 
-        playerAmount = input(f"{INFO} Enter Player Amount [{kb['player_amount']}]: ").strip() or kb['player_amount']
+        playerAmount = input(f"{INFO} Enter Player Amount [{cfg['player_amount']}]: ").strip() or cfg['player_amount']
         clear()
 
-        if str(kb['name_bypass']).lower() in ('true', '1', 'yes', 'y'):
+        if str(cfg['name_bypass']).lower() in ('true', '1', 'yes', 'y'):
             bypassPrompt = f"{INFO} Use name bypass (currently {GREEN}enabled{RST}) [\033[32mY\033[0m/\033[31mn\033[0m]: "
         else:
             bypassPrompt = f"{INFO} Use name bypass (currently {RED}disabled{RST}) [y/N]: "
         nameBypass = input(bypassPrompt).strip()
         if nameBypass == '':
-            kb['name_bypass'] = bool(str(kb['name_bypass']).lower() in ('true', '1', 'yes', 'y'))
+            cfg['name_bypass'] = bool(str(cfg['name_bypass']).lower() in ('true', '1', 'yes', 'y'))
         else:
-            kb['name_bypass'] = 'y' in nameBypass.lower()
+            cfg['name_bypass'] = 'y' in nameBypass.lower()
 
-        kb['game_pin'], kb['player_name'], kb['player_amount'] = gamePin, playerName, playerAmount
+        cfg['game_pin'], cfg['player_name'], cfg['player_amount'] = gamePin, playerName, playerAmount
         save_config(cfg)
 
-        if kb['name_bypass']:
+        if cfg['name_bypass']:
             playerName = bypassName(playerName)
 
         clear()

@@ -18,7 +18,7 @@ def lrhub_dir():
         return d
     return os.path.join(os.path.expanduser("~"), "Documents", "LRhub")
 
-LH = lrhub_dir()
+LH = os.path.join(lrhub_dir(), "testingtool")
 os.makedirs(LH, exist_ok=True)
 
 CONFIG = os.path.join(LH, "config.json")
@@ -26,11 +26,9 @@ PROXIES = os.path.join(LH, "proxies.txt")
 STUDENTS = os.path.join(LH, "students.txt")
 
 DEFAULTS = {
-    "testingtool": {
-        "session_name": "",
-        "session_pass": "",
-        "manual_test_name": ""
-    }
+    "session_name": "",
+    "session_pass": "",
+    "manual_test_name": ""
 }
 
 def load_config():
@@ -77,9 +75,8 @@ class MAP():
         )
 
 cfg = load_config()
-tt = cfg.setdefault("testingtool", {})
-for k, v in DEFAULTS["testingtool"].items():
-    tt.setdefault(k, v)
+for k, v in DEFAULTS.items():
+    cfg.setdefault(k, v)
 
 proxies = []
 if os.path.exists(PROXIES):
@@ -89,10 +86,10 @@ http = MAP(random.choice(proxies) if len(proxies) != 0 else None)
 
 clear()
 print(SEP)
-sessionName = input(f"{INFO} Session Name [{tt['session_name']}]: ").strip() or tt['session_name']
-sessionPass = input(f"{INFO} Session Pass [{tt['session_pass']}]: ").strip() or tt['session_pass']
-tt['session_name'] = sessionName
-tt['session_pass'] = sessionPass
+sessionName = input(f"{INFO} Session Name [{cfg['session_name']}]: ").strip() or cfg['session_name']
+sessionPass = input(f"{INFO} Session Pass [{cfg['session_pass']}]: ").strip() or cfg['session_pass']
+cfg['session_name'] = sessionName
+cfg['session_pass'] = sessionPass
 save_config(cfg)
 
 test = http.joinTestSession(sessionName, sessionPass)
@@ -133,7 +130,7 @@ else:
                         request = http.setReadyToConfirm(
                             sessionPass,
                             data.json()['clientTestSessionDo']['testSessionId'],
-                            student.get('assignedTest').get('testName') if student.get('assignedTest').get('testName') != None else tt['manual_test_name'],
+                            student.get('assignedTest').get('testName') if student.get('assignedTest').get('testName') != None else cfg['manual_test_name'],
                             student['studentId'],
                             auth
                         )

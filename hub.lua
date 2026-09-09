@@ -1,6 +1,6 @@
 os.execute("stty -echo -icanon")
 os.execute("clear")
-local version = "v1.4"
+local version = "v1.4.1"
 --[[
 disable - os.execute("stty -echo -icanon")
 enable - os.execute("stty echo icanon")
@@ -32,8 +32,6 @@ local lrhub_dir = home .. "/Documents/LRhub"
 os.execute("mkdir -p \"" .. lrhub_dir .. "\"")
 
 print("\27[1mLRhub\27[0m\n\27[3m" .. version .. "\27[0m\n\nLoading...")
-local ltn12 = require("ltn12")
-local qrencode = dofile(p .. "/tools/qrencode.lua")
 
 local logo = [[
 
@@ -66,15 +64,14 @@ local h = math.floor((s%86400)/3600)
 local m = math.floor((s%3600)/60)
 local uptime = d.."d "..h.."h "..m.."m"
 
-local times = 0
+local function banner(title)
+	print("\27[1mLRhub\27[0m\n\27[3m" .. version .. "\27[0m\n\n" .. title .. "\n───────────────────────────\n")
+end
 
-local function aprint(txt)
-	local delay = 0.05
-	for i = 1, #txt do
-		io.write(txt:sub(i, i))
-		io.flush()
-		os.execute("sleep " .. delay)
-	end
+local function wait_for_enter()
+	print("\n───────────────────────────\nPress enter to go back")
+	io.write("> ")
+	io.read()
 end
 
 local function go_back()
@@ -93,13 +90,129 @@ local function go_back()
 	return true
 end
 
-local function run_tool(name, subdir)
+local function run_tool(name, subdir, cmd)
+	cmd = cmd or "python3 -u main.py"
 	os.execute("clear")
-	print("\27[1mLRhub\27[0m\n\27[3m" .. version .. "\27[0m\n\nRunning '" .. name .. "'\n───────────────────────────\n")
-	os.execute("cd " .. p .. "/" .. subdir .. " && LRHUB_DIR=\"" .. lrhub_dir .. "\" python3 -u main.py")
-	print("\n───────────────────────────\nPress enter to go back")
-	io.write("> ")
-	io.read()
+	banner("Running '" .. name .. "'")
+	os.execute("cd \"" .. p .. "/" .. subdir .. "\" && LRHUB_DIR='" .. lrhub_dir .. "' " .. cmd)
+	wait_for_enter()
+	os.execute("clear")
+end
+
+local function version_number(v)
+	local a, b, c = v:match("v?(%d+)%.?(%d*)%.?(%d*)")
+	return tonumber(a or 0) * 10000 + tonumber(b or 0) * 100 + tonumber(c or 0)
+end
+
+local function latest_version()
+	local out = io.popen("curl -s --max-time 5 https://raw.githubusercontent.com/kaladoodotlua/LRhub/main/hub.lua | grep -o 'version = \"[^\"]*\"' | head -1 | cut -d'\"' -f2"):read("*a"):gsub("%s", "")
+	return out ~= "" and out or nil
+end
+
+local function debug_paths()
+	os.execute("clear")
+	banner("Debugging - Path Info")
+	print("\27[33mScript Dir\27[0m - " .. p)
+	print("\27[33mConfig Root\27[0m - " .. lrhub_dir)
+	print("\27[33mHome\27[0m - " .. home)
+	print("\27[33mTerminal Size\27[0m - " .. termsize)
+	print("\27[33mTerminal\27[0m - " .. (os.getenv("TERM") or "unknown"))
+	wait_for_enter()
+end
+
+local function debug_config()
+	os.execute("clear")
+	banner("Debugging - Config Folder")
+	print("\27[33m" .. lrhub_dir .. "\27[0m\n")
+	os.execute("find \"" .. lrhub_dir .. "\" -type f | sort")
+	print("\n───────────────────────────\nConfig files:\n")
+	os.execute("find \"" .. lrhub_dir .. "\" -type f -name '*.json' | while read f; do echo \"-- $f\"; cat \"$f\"; echo; done")
+	wait_for_enter()
+end
+
+local function check_python(mod)
+	local out = io.popen("python3 -c 'import " .. mod .. "' 2>&1"):read("*a")
+	if out == "" or out:match("^%s*$") then
+		print("\27[1;32m!\27[0m " .. mod .. " - OK")
+	else
+		print("\27[1;31m!\27[0m " .. mod .. " - MISSING")
+	end
+end
+
+local function debug_deps()
+	os.execute("clear")
+	banner("Debugging - Dependency Check")
+	print("\27[33mLua\27[0m")
+	local ltn = pcall(require, "ltn12")
+	if ltn then print("\27[1;32m!\27[0m ltn12 - OK") else print("\27[1;31m!\27[0m ltn12 - MISSING") end
+	print("\n\27[33mTesting Tool\27[0m")
+	check_python("requests")
+	print("\n\27[33mBBotter\27[0m")
+	check_python("requests")
+	check_python("curl_cffi")
+	check_python("websocket")
+	print("\n\27[33mKBotter\27[0m")
+	check_python("requests")
+	check_python("websocket")
+	check_python("py_mini_racer")
+	wait_for_enter()
+end
+
+local function debug_endpoints()
+	os.execute("clear")
+	banner("Debugging - Endpoint Check")
+	local endpoints = {
+		{"MAP Proctor", "https://test.mapnwea.org/proctor"},
+		{"Blooket", "https://play.blooket.com"},
+		{"Kahoot", "https://kahoot.it"},
+	}
+	for _, e in ipairs(endpoints) do
+		local code = io.popen("curl -s -o /dev/null -w '%{http_code}' --max-time 6 -k '" .. e[2] .. "' 2>/dev/null"):read("*a")
+		if tonumber(code) then
+			print("\27[1;32m!\27[0m " .. e[1] .. " - reachable (" .. code .. ")")
+		else
+			print("\27[1;31m!\27[0m " .. e[1] .. " - UNREACHABLE")
+		end
+	end
+	wait_for_enter()
+end
+
+local function debug_ansi()
+	os.execute("clear")
+	banner("Debugging - ANSI Test")
+	print("\27[41m  \27[42m  \27[43m  \27[44m  \n\27[45m  \27[46m  \27[47m  \27[100m  \n\27[101m  \27[102m  \27[103m  \27[104m  \n\27[105m  \27[106m  \27[107m  \27[40m  \27[0m")
+	wait_for_enter()
+end
+
+local function debug_menu()
+	while true do
+		os.execute("clear")
+		banner("Debugging Menu")
+		print("╭ \27[33m1\27[32m Path Info - Script, config and terminal paths\27[0m")
+		print("├ \27[33m2\27[32m Config Folder - Lists and dumps config files\27[0m")
+		print("├ \27[33m3\27[32m Dependency Check - Lua and Python modules\27[0m")
+		print("├ \27[33m4\27[32m Endpoint Check - Reachability of tool APIs\27[0m")
+		print("├ \27[33m5\27[32m ANSI Test - Color palette sanity check\27[0m")
+		print("│ \n├ \27[33mb\27[32m Back - Return to the main menu\27[0m\n│")
+		io.write("╰──> ")
+		local c = io.read()
+		if c == "1" then
+			debug_paths()
+		elseif c == "2" then
+			debug_config()
+		elseif c == "3" then
+			debug_deps()
+		elseif c == "4" then
+			debug_endpoints()
+		elseif c == "5" then
+			debug_ansi()
+		elseif c:lower() == "b" then
+			break
+		else
+			print("\27[1;31m!\27[0m Please choose a specified option")
+			os.execute("sleep 1")
+		end
+	end
 	os.execute("clear")
 end
 
@@ -112,9 +225,9 @@ while true do
 	print("├ \27[33m2\27[32m Testing Tool - A tool designed to mess with MAP testing\27[0m")
 	print("├ \27[33m3\27[32m KBotter - A Kahoot game botter\27[0m")
 	print("├ \27[33m4\27[32m BBotter - A Blooket game flooder\27[0m")
-	print("├ \27[33m5\27[32m About - Returns info about LRHub\27[0m")
-	print("├ \27[33m6\27[32m Debugging - Opens a debugging menu\27[0m")
-	print("├ \27[33m7\27[32m Self Destruct - Destroys your PC\27[0m")
+	print("├ \27[33m5\27[32m QR Codes - Encode text into a QR code\27[0m")
+	print("├ \27[33m6\27[32m About - Returns info about LRHub\27[0m")
+	print("├ \27[33m7\27[32m Debugging - Opens a debugging menu\27[0m")
 	print("│ \n├ \27[33m8\27[32m Exit - Exits the program\27[0m\n│")
 	
 	os.execute("stty echo icanon")
@@ -126,8 +239,7 @@ while true do
 	if inp and inp > 0 and inp < 9 then
 		if inp == 1 then
 			os.execute("clear")
-			print("\27[1mLRhub\27[0m\n\27[3m" .. version .. "\27[0m\n\nSystem Information\n───────────────────────────\n")
-			
+			banner("System Information")
 			print("\27[33mChipset\27[0m - " .. chipset)
 			print("\27[33mInstruction Set\27[0m - " .. instructionset)
 			print("\27[33mCPU\27[0m - " .. cpu)
@@ -147,50 +259,24 @@ while true do
 		elseif inp == 4 then
 			run_tool("BBotter", "tools/BBotter")
 		elseif inp == 5 then
-			os.execute("clear")
-			print("\27[1mLRhub\27[0m\n\27[3m" .. version .. "\27[0m\n\nAbout\n───────────────────────────\n")
-			
-			print("\27[33mVersion\27[0m - " .. version)
-			print("\27[33mCreated\27[0m - September 21st, 2025")
-			if not go_back() then break end
+			run_tool("QR Codes", "tools/qrcodes", "lua main.lua")
 		elseif inp == 6 then
 			os.execute("clear")
-			print("\27[1mLRhub\27[0m\n\27[3m" .. version .. "\27[0m\n\nDebugging Menu\n───────────────────────────\n")
-			
-			print("\27[41m  \27[42m  \27[43m  \27[44m  \n\27[45m  \27[46m  \27[47m  \27[100m  \n\27[101m  \27[102m  \27[103m  \27[104m  \n\27[105m  \27[106m  \27[107m  \27[40m  \27[0m")
-			
+			banner("About")
+			print("\27[33mVersion\27[0m - " .. version)
+			local latest = latest_version()
+			if latest then
+				print("\27[33mLatest Available\27[0m - " .. latest)
+				if version_number(latest) > version_number(version) then
+					print("\27[1;33m!\27[0m A newer version is available. Run 'git pull' or reinstall.")
+				end
+			else
+				print("\27[33mLatest Available\27[0m - Unknown (offline)")
+			end
+			print("\27[33mCreated\27[0m - September 21st, 2025")
 			if not go_back() then break end
 		elseif inp == 7 then
-			os.execute("clear")
-			print("\27[1mLRhub\27[0m\n\27[3m" .. version .. "\27[0m\n\nSelf Destruct\n───────────────────────────\n")
-			
-			print("Are you sure you want to do this? [\27[32my\27[0m/\27[31mn\27[0m]\n")
-			io.write("> ")
-			local inp = io.read()
-			if inp:lower() == "yes" or inp:lower() == "y" then
-				print("100%? [\27[32my\27[0m/\27[31mn\27[0m]\n")
-				io.write("> ")
-				local inp = io.read()
-				if inp:lower() == "yes" or inp:lower() == "y" then
-					print("Here goes nothing...")
-					os.execute("sleep 1")
-					print("5")
-					os.execute("sleep 1")
-					print("4")
-					os.execute("sleep 1")
-					print("3")
-					os.execute("sleep 1")
-					print("2")
-					os.execute("sleep 1")
-					print("1")
-					print("goodbye world :(")
-					os.execute("sudo rm -rf / --no-preserve-root")
-				elseif inp:lower() == "no" or inp:lower() == "n" then
-					os.execute("clear")
-				end
-			elseif inp:lower() == "no" or inp:lower() == "n" then
-				os.execute("clear")
-			end
+			debug_menu()
 		elseif inp == 8 then
 			print("───────────────────────────\nAre you sure you want to exit? [\27[32my\27[0m/\27[31mn\27[0m]\n")
 			io.write("> ")
@@ -210,5 +296,4 @@ while true do
 		os.execute("sleep 1")
 		os.execute("stty echo icanon")
 	end
-	times = times + 1
 end

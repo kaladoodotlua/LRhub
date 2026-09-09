@@ -21,7 +21,7 @@ def lrhub_dir():
         return d
     return os.path.join(os.path.expanduser("~"), "Documents", "LRhub")
 
-LH = lrhub_dir()
+LH = os.path.join(lrhub_dir(), "bbotter")
 os.makedirs(LH, exist_ok=True)
 
 CONFIG = os.path.join(LH, "config.json")
@@ -31,12 +31,10 @@ failed = 0
 lock = threading.Lock()
 
 DEFAULTS = {
-    "bbotter": {
-        "game_pin": "",
-        "name_prefix": "KDaBot",
-        "bot_amount": "10",
-        "delay": 0.1
-    }
+    "game_pin": "",
+    "name_prefix": "KDaBot",
+    "bot_amount": "10",
+    "delay": 0.1
 }
 
 def load_config():
@@ -168,16 +166,15 @@ def main():
     global joined, failed
     try:
         cfg = load_config()
-        bb = cfg.setdefault("bbotter", {})
-        for k, v in DEFAULTS["bbotter"].items():
-            bb.setdefault(k, v)
+        for k, v in DEFAULTS.items():
+            cfg.setdefault(k, v)
 
-        pin = input(f"{INFO} Enter Game Pin [{bb['game_pin']}]: ").strip() or bb['game_pin']
-        prefix = input(f"{INFO} Enter Name Prefix (will number each bot) [{bb['name_prefix']}]: ").strip() or bb['name_prefix']
-        amount = input(f"{INFO} Enter Bot Amount [{bb['bot_amount']}]: ").strip() or bb['bot_amount']
-        delay = input(f"{WARN} Delay between joins (seconds) [{bb['delay']}]: ").strip() or bb['delay']
+        pin = input(f"{INFO} Enter Game Pin [{cfg['game_pin']}]: ").strip() or cfg['game_pin']
+        prefix = input(f"{INFO} Enter Name Prefix (will number each bot) [{cfg['name_prefix']}]: ").strip() or cfg['name_prefix']
+        amount = input(f"{INFO} Enter Bot Amount [{cfg['bot_amount']}]: ").strip() or cfg['bot_amount']
+        delay = input(f"{WARN} Delay between joins (seconds) [{cfg['delay']}]: ").strip() or cfg['delay']
 
-        bb['game_pin'], bb['name_prefix'], bb['bot_amount'], bb['delay'] = pin, prefix, amount, delay
+        cfg['game_pin'], cfg['name_prefix'], cfg['bot_amount'], cfg['delay'] = pin, prefix, amount, delay
         save_config(cfg)
 
         print(f"{WARN} Press ENTER to start flooding:")
