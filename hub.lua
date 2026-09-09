@@ -252,7 +252,7 @@ while true do
 			if latest then
 				print("\27[33mLatest Available\27[0m - " .. latest)
 				if version_number(latest) > version_number(version) then
-					print("\27[1;33m!\27[0m A newer version is available. Run 'git pull' or reinstall.")
+					print('\27[1;33m!\27[0m A newer version is available. Run "git pull" or reinstall with [sudo bash -c "$(curl -sS https://raw.githubusercontent.com/kaladoodotlua/LRhub/refs/heads/main/install.sh)"]')
 				end
 			else
 				print("\27[33mLatest Available\27[0m - Unknown (offline)")
