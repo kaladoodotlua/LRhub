@@ -1,6 +1,6 @@
 os.execute("stty -echo -icanon")
 os.execute("clear")
-local version = "v1.4.1"
+local version = "v1.4.2"
 --[[
 disable - os.execute("stty -echo -icanon")
 enable - os.execute("stty echo icanon")
@@ -74,22 +74,6 @@ local function wait_for_enter()
 	io.read()
 end
 
-local function go_back()
-	print("\n───────────────────────────\nGo back or exit? [\27[32my\27[0m/\27[31mn\27[0m]\n")
-	io.write("> ")
-	local inp = io.read()
-	if inp:lower() == "yes" or inp:lower() == "y" then
-		os.execute("clear")
-		return true
-	elseif inp:lower() == "no" or inp:lower() == "n" then
-		print("Exiting...")
-		os.execute("sleep 1")
-		os.execute("clear")
-		return false
-	end
-	return true
-end
-
 local function run_tool(name, subdir, cmd)
 	cmd = cmd or "python3 -u main.py"
 	os.execute("clear")
@@ -122,11 +106,11 @@ end
 
 local function debug_config()
 	os.execute("clear")
-	banner("Debugging - Config Folder")
+	banner("Debugging - Data Folder")
 	print("\27[33m" .. lrhub_dir .. "\27[0m\n")
-	os.execute("find \"" .. lrhub_dir .. "\" -type f | sort")
-	print("\n───────────────────────────\nConfig files:\n")
-	os.execute("find \"" .. lrhub_dir .. "\" -type f -name '*.json' | while read f; do echo \"-- $f\"; cat \"$f\"; echo; done")
+	os.execute("find \"" .. lrhub_dir .. "\" -mindepth 1 | sort")
+	print("\n───────────────────────────\nUsage:")
+	os.execute("du -sh \"" .. lrhub_dir .. "\"")
 	wait_for_enter()
 end
 
@@ -188,8 +172,8 @@ local function debug_menu()
 	while true do
 		os.execute("clear")
 		banner("Debugging Menu")
-		print("╭ \27[33m1\27[32m Path Info - Script, config and terminal paths\27[0m")
-		print("├ \27[33m2\27[32m Config Folder - Lists and dumps config files\27[0m")
+		print("╭ \27[33m1\27[32m Path Info - Script and data folder paths\27[0m")
+		print("├ \27[33m2\27[32m Data Folder - Lists everything under ~/Documents/LRhub\27[0m")
 		print("├ \27[33m3\27[32m Dependency Check - Lua and Python modules\27[0m")
 		print("├ \27[33m4\27[32m Endpoint Check - Reachability of tool APIs\27[0m")
 		print("├ \27[33m5\27[32m ANSI Test - Color palette sanity check\27[0m")
@@ -251,7 +235,7 @@ while true do
 			print("\27[33mRAM\27[0m - " .. ram)
 			print("\27[33mStorage\27[0m - " .. storage)
 			print("\27[33mUptime\27[0m - " .. uptime)
-			if not go_back() then break end
+			wait_for_enter()
 		elseif inp == 2 then
 			run_tool("Testing tool", "tools/testingtool")
 		elseif inp == 3 then
@@ -274,21 +258,14 @@ while true do
 				print("\27[33mLatest Available\27[0m - Unknown (offline)")
 			end
 			print("\27[33mCreated\27[0m - September 21st, 2025")
-			if not go_back() then break end
+			wait_for_enter()
 		elseif inp == 7 then
 			debug_menu()
 		elseif inp == 8 then
-			print("───────────────────────────\nAre you sure you want to exit? [\27[32my\27[0m/\27[31mn\27[0m]\n")
-			io.write("> ")
-			local inp = io.read()
-			if inp:lower() == "yes" or inp:lower() == "y" then
-				print("Exiting...")
-				os.execute("sleep 1")
-				os.execute("clear")
-				break
-			elseif inp:lower() == "no" or inp:lower() == "n" then
-				os.execute("clear")
-			end
+			print("Exiting...")
+			os.execute("sleep 1")
+			os.execute("clear")
+			break
 		end
 	else
 		print("\27[1;31m!\27[0m Please choose a specified number")

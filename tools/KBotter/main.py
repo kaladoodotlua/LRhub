@@ -6,13 +6,10 @@ from time import time, sleep
 from requests import get, session
 from uuid import uuid4
 from os import system
-import json, os, sys
+import os, sys
 
 import solve_challange
 
-RST = "\033[0m"
-YELLOW, GREEN, RED = "\033[33m", "\033[32m", "\033[31m"
-BRIGHT = "\033[1m"
 INFO = f"\033[1;32m!\033[0m"
 ERR = f"\033[1;31m!\033[0m"
 WARN = f"\033[1;33m!\033[0m"
@@ -30,26 +27,6 @@ def lrhub_dir():
 
 LH = os.path.join(lrhub_dir(), "kbotter")
 os.makedirs(LH, exist_ok=True)
-
-CONFIG = os.path.join(LH, "config.json")
-
-DEFAULTS = {
-    "game_pin": "",
-    "player_name": "",
-    "player_amount": "10",
-    "name_bypass": False
-}
-
-def load_config():
-    try:
-        if os.path.exists(CONFIG):
-            return json.load(open(CONFIG, "r"))
-    except Exception:
-        pass
-    return json.loads(json.dumps(DEFAULTS))
-
-def save_config(cfg):
-    json.dump(cfg, open(CONFIG, "w"), indent=2)
 
 playerCount = 0
 exitVal = False
@@ -141,39 +118,19 @@ def main():
         exit(1)
 
     try:
-        cfg = load_config()
-        for key, value in DEFAULTS.items():
-            cfg.setdefault(key, value)
-
         print(SEP)
-        gamePin = input(f"{INFO} Enter Game Pin [{cfg['game_pin']}]: ").strip() or cfg['game_pin']
-        clear()
+        gamePin = input(f"{INFO} Enter Game Pin: ").strip()
 
-        playerName = input(f"{INFO} Enter Player Name (Note: will add number incrementally after the name) [{cfg['player_name']}]: ").strip() or cfg['player_name']
-        clear()
+        playerName = input(f"{INFO} Enter Player Name (Note: will add number incrementally after the name): ").strip()
 
-        playerAmount = input(f"{INFO} Enter Player Amount [{cfg['player_amount']}]: ").strip() or cfg['player_amount']
-        clear()
+        playerAmount = input(f"{INFO} Enter Player Amount: ").strip() or "10"
 
-        if str(cfg['name_bypass']).lower() in ('true', '1', 'yes', 'y'):
-            bypassPrompt = f"{INFO} Use name bypass (currently {GREEN}enabled{RST}) [\033[32mY\033[0m/\033[31mn\033[0m]: "
-        else:
-            bypassPrompt = f"{INFO} Use name bypass (currently {RED}disabled{RST}) [y/N]: "
-        nameBypass = input(bypassPrompt).strip()
-        if nameBypass == '':
-            cfg['name_bypass'] = bool(str(cfg['name_bypass']).lower() in ('true', '1', 'yes', 'y'))
-        else:
-            cfg['name_bypass'] = 'y' in nameBypass.lower()
-
-        cfg['game_pin'], cfg['player_name'], cfg['player_amount'] = gamePin, playerName, playerAmount
-        save_config(cfg)
-
-        if cfg['name_bypass']:
+        nameBypass = input(f"{INFO} Use name bypass [y/N]: ").strip()
+        if 'y' in nameBypass.lower():
             playerName = bypassName(playerName)
 
-        clear()
-
-        input(f"{INFO} Press ENTER to start bot:\n> ")
+        print(f"{WARN} Press ENTER to start bot:")
+        input("> ")
 
         clear()
 

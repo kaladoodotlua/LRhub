@@ -1,5 +1,3 @@
-os.execute("clear")
-
 INFO = "\27[1;32m!\27[0m"
 ERR = "\27[1;31m!\27[0m"
 WARN = "\27[1;33m!\27[0m"
@@ -48,8 +46,6 @@ local function qr_to_ppm(tab, path, scale)
 	f:close()
 	return true
 end
-
-print("\27[1mQR Codes\27[0m\n\27[3mEncode text into a QR code\27[0m")
 
 while true do
 	print("\n" .. SEP)

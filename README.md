@@ -4,7 +4,7 @@ A single colorful terminal hub that puts a bunch of handy — and honestly, pret
 chaotic — tools in one place. Pick one from the menu and it runs with the same
 style, the same buttons, the same everything.
 
-**Latest version: v1.4.1**
+**Latest version: v1.4.2**
 
 ---
 
@@ -20,8 +20,9 @@ then just type:
 lrhub
 ```
 
-The hub creates its own little config area at `~/Documents/LRhub/` on first
-launch, so everything you type sticks around for next time.
+The hub makes its own little data area at `~/Documents/LRhub/` on first launch
+(don't worry, it's just empty folders — tools keep whatever output they create
+there).
 
 ---
 
@@ -41,6 +42,13 @@ launch, so everything you type sticks around for next time.
 ---
 
 ## Recent changes
+
+**v1.4.2**
+- Removed all saved tool settings — no more config files, no more remembered pins. Each run asks fresh.
+- Tools no longer wipe the hub's header when they open, and nothing clears between prompts
+- No more empty `[]` placeholders in inputs
+- Replaced the "Go back or exit? [y/n]" prompts with a simple "Press enter to go back"
+- Tool folders still exist under `~/Documents/LRhub/` for their output (scraped students, saved QR images)
 
 **v1.4.1**
 - Removed Self Destruct (yes, it's gone — no more surprises)
@@ -87,25 +95,22 @@ pip install requests curl_cffi websocket-client py-mini-racer
 
 ## Where your stuff lives
 
-`~/Documents/LRhub/` is the hub's own little world. Each tool gets its own
-folder so nothing gets tangled together:
+`~/Documents/LRhub/` is the hub's output folder. Each tool gets its own folder
+so nothing gets tangled together:
 
 ```
 ~/Documents/LRhub/
 ├── testingtool/
-│   ├── config.json      # session name, pass, manual test name
 │   ├── students.txt     # scraped student list
-│   └── proxies.txt      # optional proxies (not required)
-├── bbotter/
-│   └── config.json      # game pin, name prefix, bot count, delay
-├── kbotter/
-│   └── config.json      # game pin, player name, bot count, bypass
+│   └── proxies.txt      # optional proxies (put them here, not required)
+├── bbotter/             # empty, reserved for BBotter output
+├── kbotter/             # empty, reserved for KBotter output
 └── qrcode/
     └── qr_*.ppm         # saved QR code images
 ```
 
-Every time you restart a tool, it remembers the values you typed last — just
-press Enter to keep them, or type new ones.
+Tools don't remember your inputs between runs — the folders just keep the stuff
+the tools produce.
 
 ---
 
@@ -139,7 +144,7 @@ Something not working? The **Debugging** menu (`7`) has your back:
 
 - **Dependency Check** — tells you exactly which Lua/Python module is missing
 - **Endpoint Check** — pings the MAP, Blooket and Kahoot servers to see if they're reachable
-- **Config Folder** — dumps every config file so you can spot bad values
+- **Data Folder** — lists everything living under `~/Documents/LRhub/`
 - **Path Info** — shows where LRhub thinks everything lives
 
 Most "it doesn't work" moments are one of those three.

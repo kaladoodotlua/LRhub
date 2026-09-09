@@ -24,29 +24,9 @@ def lrhub_dir():
 LH = os.path.join(lrhub_dir(), "bbotter")
 os.makedirs(LH, exist_ok=True)
 
-CONFIG = os.path.join(LH, "config.json")
-
 joined = 0
 failed = 0
 lock = threading.Lock()
-
-DEFAULTS = {
-    "game_pin": "",
-    "name_prefix": "KDaBot",
-    "bot_amount": "10",
-    "delay": 0.1
-}
-
-def load_config():
-    try:
-        if os.path.exists(CONFIG):
-            return json.load(open(CONFIG, "r"))
-    except Exception:
-        pass
-    return json.loads(json.dumps(DEFAULTS))
-
-def save_config(cfg):
-    json.dump(cfg, open(CONFIG, "w"), indent=2)
 
 def get_play_page(pin):
     for _ in range(25):
@@ -165,30 +145,23 @@ def bot_join(pin, name):
 def main():
     global joined, failed
     try:
-        cfg = load_config()
-        for k, v in DEFAULTS.items():
-            cfg.setdefault(k, v)
-
-        pin = input(f"{INFO} Enter Game Pin [{cfg['game_pin']}]: ").strip() or cfg['game_pin']
-        prefix = input(f"{INFO} Enter Name Prefix (will number each bot) [{cfg['name_prefix']}]: ").strip() or cfg['name_prefix']
-        amount = input(f"{INFO} Enter Bot Amount [{cfg['bot_amount']}]: ").strip() or cfg['bot_amount']
-        delay = input(f"{WARN} Delay between joins (seconds) [{cfg['delay']}]: ").strip() or cfg['delay']
-
-        cfg['game_pin'], cfg['name_prefix'], cfg['bot_amount'], cfg['delay'] = pin, prefix, amount, delay
-        save_config(cfg)
+        pin = input(f"{INFO} Enter Game Pin: ").strip()
+        prefix = input(f"{INFO} Enter Name Prefix (will number each bot): ").strip() or "KDaBot"
+        amount = int(input(f"{INFO} Enter Bot Amount: ").strip() or "10")
+        delay = float(input(f"{WARN} Delay between joins (seconds): ").strip() or "0.1")
 
         print(f"{WARN} Press ENTER to start flooding:")
         input("> ")
 
         threads = []
-        for i in range(1, int(amount) + 1):
+        for i in range(1, amount + 1):
             name = f"{prefix}{i}"
             t = threading.Thread(target=bot_join, args=(pin, name), daemon=True)
             t.start()
             threads.append(t)
-            time.sleep(float(delay))
+            time.sleep(delay)
 
-        while joined < int(amount):
+        while joined < amount:
             time.sleep(0.5)
         print(f"\n{INFO} Successfully added {joined} of {amount} bots.")
         print(f"{WARN} By closing this program the bots will leave the game.")
