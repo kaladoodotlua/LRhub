@@ -108,7 +108,7 @@ else:
                             student['studentId'],
                             auth
                         )
-                        print(f"{INFO} s%s (%s)" % (student['userId'], request.text))
+                        print(f"{INFO} s%s (%s)" % (student['studentId'], request.text))
                 except Exception as E:
                     if data.headers.get('Set-Auth-Token') == None:
                         print(f"{ERR} Invalid Session")
