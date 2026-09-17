@@ -1,6 +1,6 @@
 os.execute("stty -echo -icanon")
 os.execute("clear")
-local version = "v1.4.2"
+local version = "v1.4.3"
 --[[
 disable - os.execute("stty -echo -icanon")
 enable - os.execute("stty echo icanon")
