@@ -4,7 +4,7 @@ A single colorful terminal hub that puts a bunch of handy — and honestly, pret
 chaotic — tools in one place. Pick one from the menu and it runs with the same
 style, the same buttons, the same everything.
 
-**Latest version: v1.4.2**
+**Latest version: v1.4.3**
 
 ---
 
@@ -42,6 +42,9 @@ there).
 ---
 
 ## Recent changes
+
+**v1.4.3**
+- Fix print statement inside Testing Tool to use studentId instead of userId
 
 **v1.4.2**
 - Removed all saved tool settings — no more config files, no more remembered pins. Each run asks fresh.
